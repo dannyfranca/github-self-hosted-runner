@@ -65,7 +65,7 @@ RUNNER_TYPE=org
 # For organization runner: YOUR_ORG_NAME
 # For repository runner: YOUR_USERNAME/YOUR_REPO
 REPOSITORY=your-org-or-repo
-RUNNER_LABELS=wsl2,docker,self-hosted,linux
+RUNNER_LABELS=docker,linux
 ACCESS_TOKEN=your_github_personal_access_token
 ```
 
