@@ -1,0 +1,11 @@
+services:
+  runner:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: dannyfranca/github-runner:latest
+    restart: always
+    environment:
+      - REPOSITORY=${REPOSITORY}
+      - RUNNER_LABELS=${RUNNER_LABELS:-wsl2,docker,self-hosted,linux}
+      - ACCESS_TOKEN=${ACCESS_TOKEN}
