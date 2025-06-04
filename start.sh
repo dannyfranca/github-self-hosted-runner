@@ -67,55 +67,22 @@ fi
 
 cd /home/docker/actions-runner
 
-# Check if runner is already configured
-if is_runner_configured; then
-    log "Runner is already configured. Checking if it's still valid..."
-    
-    # Try to run the runner directly
-    ./run.sh &
-    RUNNER_PID=$!
-    
-    # Give it a few seconds to see if it starts successfully
-    sleep 5
-    
-    if kill -0 $RUNNER_PID 2>/dev/null; then
-        log "Existing runner configuration is valid, reusing it..."
-        wait $RUNNER_PID
-    else
-        log "Existing runner configuration is invalid, reconfiguring..."
-        remove_runner
-        
-        # Configure the runner
-        log "Configuring runner..."
-        ./config.sh \
-            --url ${RUNNER_URL} \
-            --token ${REG_TOKEN} \
-            --name "${RUNNER_NAME}" \
-            --labels "${RUNNER_LABELS:-docker}" \
-            --unattended \
-            --replace || {
-                log "ERROR: Failed to configure runner"
-                exit 1
-            }
-        
-        # Start the runner
-        log "Starting runner..."
-        ./run.sh
-    fi
-else
-    # Configure the runner
-    log "Configuring new runner..."
-    ./config.sh \
-        --url ${RUNNER_URL} \
-        --token ${REG_TOKEN} \
-        --name ${RUNNER_NAME} \
-        --labels "${RUNNER_LABELS:-docker}" \
-        --unattended || {
-            log "ERROR: Failed to configure runner"
-            exit 1
-        }
-    
-    # Start the runner
-    log "Starting runner..."
-    ./run.sh
-fi
+# Always start fresh to avoid conflicts with other runners
+remove_runner
+
+# Configure the runner
+log "Configuring runner..."
+./config.sh \
+    --url ${RUNNER_URL} \
+    --token ${REG_TOKEN} \
+    --name "${RUNNER_NAME}" \
+    --labels "${RUNNER_LABELS:-docker}" \
+    --unattended \
+    --ephemeral || {
+        log "ERROR: Failed to configure runner"
+        exit 1
+    }
+
+# Start the runner
+log "Starting runner..."
+./run.sh
