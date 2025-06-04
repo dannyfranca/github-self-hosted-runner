@@ -181,4 +181,4 @@ Both commands should return a JSON response with a `token` field if successful.
 
 ## License
 
-[Add your license here]
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
