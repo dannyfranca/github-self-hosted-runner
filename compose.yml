@@ -7,5 +7,5 @@ services:
     restart: always
     environment:
       - REPOSITORY=${REPOSITORY}
-      - RUNNER_LABELS=${RUNNER_LABELS:-wsl2,docker,self-hosted,linux}
+      - RUNNER_LABELS=${RUNNER_LABELS:-docker}
       - ACCESS_TOKEN=${ACCESS_TOKEN}
