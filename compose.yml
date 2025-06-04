@@ -4,8 +4,19 @@ services:
       context: .
       dockerfile: Dockerfile
     image: dannyfranca/github-runner:latest
-    restart: always
+    restart: unless-stopped
     environment:
       - REPOSITORY=${REPOSITORY}
       - RUNNER_LABELS=${RUNNER_LABELS:-docker}
       - ACCESS_TOKEN=${ACCESS_TOKEN}
+      - RUNNER_TYPE=${RUNNER_TYPE:-org}
+    volumes:
+      # Persist runner configuration between container restarts
+      - runner-config:/home/docker/actions-runner
+    # Ensure proper signal handling for cleanup
+    stop_signal: SIGTERM
+    stop_grace_period: 30s
+
+volumes:
+  runner-config:
+    driver: local
