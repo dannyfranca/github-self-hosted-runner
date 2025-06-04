@@ -59,6 +59,9 @@ cp .env.schema .env
 Edit the `.env` file with your configuration:
 
 ```env
+# Runner type: 'org' for organization runners, 'repo' for repository runners
+RUNNER_TYPE=org
+
 # For organization runner: YOUR_ORG_NAME
 # For repository runner: YOUR_USERNAME/YOUR_REPO
 REPOSITORY=your-org-or-repo
@@ -96,9 +99,10 @@ make down
 
 ### Environment Variables
 
-- `REPOSITORY` - GitHub organization or repository (format: `org-name` or `username/repo` or `org-name/repo`)
+- `RUNNER_TYPE` - Runner type: `org` for organization runners, `repo` for repository runners (default: `org`)
+- `REPOSITORY` - GitHub organization or repository (format: `org-name` or `owner/repo`)
 - `ACCESS_TOKEN` - GitHub Personal Access Token
-- `RUNNER_LABELS` - Comma-separated list of runner labels (default: `wsl2,docker,self-hosted,linux`)
+- `RUNNER_LABELS` - Comma-separated list of runner labels (default: `docker`)
 
 ### Scaling
 
@@ -112,7 +116,7 @@ make up workers=5  # Starts 5 runners
 1. The Docker image is based on Ubuntu 22.04
 2. Downloads and installs GitHub Actions runner (v2.325.0)
 3. Uses your ACCESS_TOKEN to get a registration token from GitHub API
-4. Registers the runner with your GitHub organization/repository
+4. Registers the runner with your GitHub organization/repository based on RUNNER_TYPE
 5. Automatically unregisters when the container stops
 6. Supports scaling to multiple runners using Docker Compose
 
@@ -126,6 +130,7 @@ make up workers=5  # Starts 5 runners
   - Organization runners: You must be an organization owner
   - Repository runners: You must have admin access to the repository
 - Check that REPOSITORY is in the correct format
+- Ensure RUNNER_TYPE matches your intended setup (`org` or `repo`)
 - Review container logs: `docker compose logs runner`
 
 ### Permission Issues
@@ -135,9 +140,10 @@ make up workers=5  # Starts 5 runners
 - Verify the token hasn't expired
 
 ### Testing Your Token
-You can test if your token works by running:
 
-**For organization runners:**
+You can test if your token works by running the appropriate command based on your `RUNNER_TYPE`:
+
+**For organization runners (`RUNNER_TYPE=org`):**
 ```bash
 curl -X POST \
   -H "Authorization: token YOUR_TOKEN" \
@@ -145,13 +151,15 @@ curl -X POST \
   https://api.github.com/orgs/YOUR_ORG/actions/runners/registration-token
 ```
 
-**For repository runners:**
+**For repository runners (`RUNNER_TYPE=repo`):**
 ```bash
 curl -X POST \
   -H "Authorization: token YOUR_TOKEN" \
   -H "Accept: application/vnd.github+json" \
   https://api.github.com/repos/OWNER/REPO/actions/runners/registration-token
 ```
+
+Both commands should return a JSON response with a `token` field if successful.
 
 ## Security Notes
 
