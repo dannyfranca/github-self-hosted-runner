@@ -1,4 +1,4 @@
-.PHONY: up down
+.PHONY: up down build-multi
 
 workers ?= 1
 

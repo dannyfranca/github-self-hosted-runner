@@ -41,6 +41,10 @@ cleanup() {
 # Set up signal handlers
 trap 'cleanup' INT TERM
 
+# Generate unique runner name using prefix and hostname
+RUNNER_NAME="${RUNNER_NAME_PREFIX:-runner}-$(hostname)"
+log "Runner name: ${RUNNER_NAME}"
+
 # Determine API endpoint based on runner type
 if [ "${RUNNER_TYPE:-org}" = "repo" ]; then
     # Repository runner
@@ -86,6 +90,7 @@ if is_runner_configured; then
         ./config.sh \
             --url ${RUNNER_URL} \
             --token ${REG_TOKEN} \
+            --name "${RUNNER_NAME}" \
             --labels "${RUNNER_LABELS:-docker}" \
             --unattended \
             --replace || {
@@ -103,6 +108,7 @@ else
     ./config.sh \
         --url ${RUNNER_URL} \
         --token ${REG_TOKEN} \
+        --name ${RUNNER_NAME} \
         --labels "${RUNNER_LABELS:-docker}" \
         --unattended || {
             log "ERROR: Failed to configure runner"

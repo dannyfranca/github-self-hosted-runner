@@ -66,6 +66,7 @@ RUNNER_TYPE=org
 # For repository runner: YOUR_USERNAME/YOUR_REPO
 REPOSITORY=your-org-or-repo
 RUNNER_LABELS=docker,linux
+RUNNER_NAME_PREFIX=prod
 ACCESS_TOKEN=your_github_personal_access_token
 ```
 
@@ -103,12 +104,29 @@ make down
 - `REPOSITORY` - GitHub organization or repository (format: `org-name` or `owner/repo`)
 - `ACCESS_TOKEN` - GitHub Personal Access Token
 - `RUNNER_LABELS` - Comma-separated list of runner labels (default: `docker`)
+- `RUNNER_NAME_PREFIX` - Prefix for runner names (default: `runner`). Each runner will be named as `{prefix}-{hostname}`
 
 ### Scaling
 
 You can run multiple runners by using the `workers` parameter:
 ```bash
 make up workers=5  # Starts 5 runners
+```
+
+### Runner Identification
+
+Each runner container is uniquely identified through:
+
+1. **Runner Name**: Automatically generated as `{RUNNER_NAME_PREFIX}-{hostname}` (e.g., `prod-abc123`)
+2. **Docker Labels**: Containers are labeled for easy filtering and identification:
+   - `com.github.runner.repository` - The GitHub repository/organization
+   - `com.github.runner.type` - Runner type (org or repo)
+   - `com.github.runner.labels` - The runner labels
+   - `com.github.runner.prefix` - The runner name prefix
+
+Example: View all runners with their labels:
+```bash
+docker ps --filter "label=com.github.runner.repository" --format "table {{.Names}}\t{{.Label \"com.github.runner.prefix\"}}\t{{.Label \"com.github.runner.repository\"}}"
 ```
 
 ## How It Works

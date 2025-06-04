@@ -3,19 +3,29 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - RUNNER_ARCH=${RUNNER_ARCH:-x64}
     image: dannyfranca/github-runner:latest
+    platform: linux/amd64
     restart: unless-stopped
     environment:
       - REPOSITORY=${REPOSITORY}
       - RUNNER_LABELS=${RUNNER_LABELS:-docker}
       - ACCESS_TOKEN=${ACCESS_TOKEN}
       - RUNNER_TYPE=${RUNNER_TYPE:-org}
+      - RUNNER_NAME_PREFIX=${RUNNER_NAME_PREFIX:-runner}
     volumes:
       # Persist runner configuration between container restarts
       - runner-config:/home/docker/actions-runner
     # Ensure proper signal handling for cleanup
     stop_signal: SIGTERM
     stop_grace_period: 30s
+    # Docker labels for easy identification
+    labels:
+      - "com.github.runner.repository=${REPOSITORY}"
+      - "com.github.runner.type=${RUNNER_TYPE:-org}"
+      - "com.github.runner.labels=${RUNNER_LABELS:-docker}"
+      - "com.github.runner.prefix=${RUNNER_NAME_PREFIX:-runner}"
 
 volumes:
   runner-config:
