@@ -106,11 +106,31 @@ make down
 - `RUNNER_LABELS` - Comma-separated list of runner labels (default: `docker`)
 - `RUNNER_NAME_PREFIX` - Prefix for runner names (default: `runner`). Each runner will be named as `{prefix}-{hostname}`
 
-### Scaling
+### Running Multiple Runners
 
-You can run multiple runners by using the `workers` parameter:
+You can run multiple runners simultaneously using Docker Compose scaling:
+
 ```bash
 make up workers=5  # Starts 5 runners
+```
+
+**Important Notes for Multiple Runners:**
+- Each runner runs in **ephemeral mode** and will be automatically unregistered after completing a job
+- No persistent volumes are used to avoid configuration conflicts between runners
+- Each runner gets a unique name using the format `{RUNNER_NAME_PREFIX}-{container_hostname}`
+- All runners share the same labels and configuration from your `.env` file
+- Runners are stateless and disposable - perfect for scaling up/down based on demand
+
+Example: Scale up to handle more workload
+```bash
+# Start with 3 runners
+make up workers=3
+
+# Scale up to 10 runners
+docker compose up -d --scale runner=10
+
+# Scale down to 5 runners
+docker compose up -d --scale runner=5
 ```
 
 ### Runner Identification
